@@ -51,11 +51,11 @@ async def async_return_value(value: Any) -> Any:
     return value
 
 
-def wait_result(future: asyncio.Future, timeout: float = 0.5) -> Any:
+def wait_result(future: asyncio.Future, timeout: float = 0.6) -> Any:
     result = None
     start = time.time()
     while time.time() - start < timeout:
-        time.sleep(0.1)
+        time.sleep(0.2)
         if future.done():
             result = future.result()
             break
