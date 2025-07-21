@@ -1,5 +1,7 @@
 # AsyncUI
 
+[![CI](https://github.com/eumis/asyncui/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/eumis/asyncui/actions/workflows/ci.yml)
+
 Library for asynchronous GUI programming.
 Runs async event loop in a separate thread.
 
