@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 from pytest import mark
 
-from asyncui.loop import asynchronous, run_async, create_future, get_loop, run_loop, set_future_result
+from asyncui.loop import asynchronous, create_future, get_loop, run_async, run_loop, set_future_result
 
 
 class RunLoopTests:
@@ -54,9 +54,11 @@ async def async_return_value(value: Any) -> Any:
 def wait_result(future: asyncio.Future, timeout: float = 0.5) -> Any:
     result = None
     start = time.time()
-    while not future.done() and time.time() - start < timeout:
-        time.sleep(0.5)
-        result = future.result()
+    while time.time() - start < timeout:
+        time.sleep(0.1)
+        if future.done():
+            result = future.result()
+            break
     return result
 
 
