@@ -3,7 +3,12 @@ from asyncio import Future
 from concurrent.futures import Executor
 from contextlib import contextmanager
 from functools import wraps
-from typing import Any, Callable, Generator, Optional, ParamSpec, TypeVar
+from typing import Callable, Generator, Optional, TypeVar
+
+try:
+    from typing import ParamSpec
+except ImportError:
+    from typing_extensions import ParamSpec
 
 import asyncui
 
@@ -21,16 +26,16 @@ def use_executor(executor: Executor) -> Generator[Executor, None, None]:
         _EXECUTOR = None
 
 
-def run_in_thread(func, *args, **kwargs) -> Future[Any]:
+R = TypeVar("R")
+P = ParamSpec("P")
+
+
+def run_in_thread(func: Callable[P, R], *args, **kwargs) -> Future[R]:
     """runs function in a thread and returns a Future"""
     if _EXECUTOR is None:
         raise ValueError("Executor is not set")
     future = _EXECUTOR.submit(func, *args, **kwargs)
     return asyncio.wrap_future(future, loop=asyncui.get_loop())
-
-
-R = TypeVar("R")
-P = ParamSpec("P")
 
 
 def thread(func: Callable[P, R]) -> Callable[P, Future[R]]:

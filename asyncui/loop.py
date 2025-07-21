@@ -5,7 +5,12 @@ from asyncio import AbstractEventLoop, Future, events, tasks
 from contextlib import contextmanager
 from functools import partial, wraps
 from threading import Thread
-from typing import Any, Generator, Optional, Tuple
+from typing import Any, Callable, Coroutine, Generator, Optional, Tuple, TypeVar
+
+try:
+    from typing import ParamSpec
+except ImportError:
+    from typing_extensions import ParamSpec
 
 _ASYNC_LOOP: Optional[AbstractEventLoop] = None
 
@@ -75,7 +80,11 @@ def get_loop() -> AbstractEventLoop:
     return _ASYNC_LOOP
 
 
-def asynchronous(func):
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def asynchronous(func: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, Future[R]]:
     """Decorator to run function in async event loop"""
     if not asyncio.iscoroutinefunction(func):
         raise ValueError(f"{func} is expected to be coroutine function")
@@ -87,14 +96,14 @@ def asynchronous(func):
     return decorated
 
 
-def run_async(func, *args, **kwargs) -> Future:
+def run_async(func: Callable[P, Coroutine[Any, Any, R]], *args, **kwargs) -> Future[R]:
     """Run function in async event loop"""
     if not asyncio.iscoroutinefunction(func):
         print("WARNING: func is not coroutine")
     return _run_async(func, *args, **kwargs)
 
 
-def _run_async(func, *args, **kwargs) -> Future:
+def _run_async(func: Callable[P, Coroutine[Any, Any, R]], *args, **kwargs) -> Future:
     loop = get_loop()
     future = asyncio.run_coroutine_threadsafe(_handle_async_errors(func, args, kwargs), loop)
     return asyncio.wrap_future(future, loop=loop)
