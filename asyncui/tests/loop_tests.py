@@ -55,7 +55,7 @@ def wait_result(future: asyncio.Future, timeout: float = 0.5) -> Any:
     result = None
     start = time.time()
     while not future.done() and time.time() - start < timeout:
-        time.sleep(0.1)
+        time.sleep(0.5)
         result = future.result()
     return result
 
